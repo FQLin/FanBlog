@@ -1,0 +1,27 @@
+public class Program
+    {
+        public static void Main(string[] args)
+        {
+            BuildWebHost(args).Run();
+        }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                //添加 antofac
+                .ConfigureServices(services => services.AddAutofac())
+                //配置 appsettings 配置文件
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    var env = context.HostingEnvironment;
+
+                    config.SetBasePath(env.ContentRootPath)
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                        .AddEnvironmentVariables();
+                })
+                .UseIISIntegration()
+                //.UseUrls("http://10.1.6.21:12271")
+                .UseKestrel()
+                .Build();
+    }
